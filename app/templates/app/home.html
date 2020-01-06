@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	{%load staticfiles%}
+	<link rel="stylesheet" type="text/css" href="{%static 'app/vendor/css/bootstrap.css'%}">
+	<link rel="stylesheet" type="text/css" href="{%static 'app/vendor/css/modal.css'%}">
+	<link rel="stylesheet" type="text/css" href="{%static 'app/vendor/css/semantic.min.css'%}">
+	<script type="text/javascript" src="{%static 'app/vendor/js/underscore.js'%}"></script>
+	<script type="text/javascript" src="{%static 'app/vendor/js/jquery.min.js'%}"></script>
+</head>
+<body>
+	<div class="row">
+		<div class="col-lg-8 col-lg-offset-2">
+			<div class="panel panel-default">
+				<div class="panel-heading"></div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-lg-6">
+						<label class="control-label">Enter String</label>
+							<input id="stringValue" type="" name="" class="form-control">
+						</div>
+						<div class="col-lg-6">
+							<label class="control-label">Color Hash Values</label>
+							<textarea rows='10' id="stringHistory" class="form-control"></textarea>
+
+							<div id="stringDest" style="height: 100px"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var old_value = $("#stringValue").val();
+	var values  = [];
+	$(document).on('keyup','#stringValue',function(event){
+		var value = $(this).val();
+		if(old_value == value) return false;
+		if( $(this).val().length == 0 )  return;
+		$.get('/getcolor/', {'string': $(this).val(), }, function(data, status){
+			$("#stringDest").css('background-color', "#" + data['value']);
+			// $("#stringHistory").text(value + " : #" + data['value'] + "\n" + $("#stringHistory").text());
+			if(values.indexOf(value) > -1){
+				$("#stringHistory").text(value + " : #" + data['value'] + "  Repeated value" + "\n" + $("#stringHistory").text());
+			} else{
+				$("#stringHistory").text(value + " : #" + data['value'] + "\n" + $("#stringHistory").text());
+			}
+			// $("#stringColorHash").val( value + " : "  + data['value']);
+			old_value = value;
+			values.push(value);
+			console.log(values.length);
+		})
+	})
+	// $("#stringValue").on("keyup", function(){
+	// 	var value = $(this).val();
+	// 	if( $(this).val().length == 0 )  return;
+	// 	$.get('/getcolor/', {'string': $(this).val(), }, function(data, status){
+	// 		$("#stringDest").css('background-color', "#" + data['value']);
+	// 		$('#stringold3ColorHash').val($("#stringold2ColorHash").val());
+	// 		$('#stringold2ColorHash').val($("#stringold1ColorHash").val());
+	// 		$('#stringold1ColorHash').val($("#stringColorHash").val());
+	// 		$("#stringColorHash").val( value + " : "  + data['value']);
+	// 	})
+	// })
+</script>
+</html>

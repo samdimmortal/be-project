@@ -1,0 +1,38 @@
+<html ng-app="app">
+    {%load staticfiles%}
+    <head>
+        <title></title>
+        <script src="{%static 'app/vendor/js/jquery.min.js'%}"></script>
+        <script src="{%static 'app/vendor/js/jquery-ui.js'%}"></script>
+        <script src="{%static 'app/vendor/js/bootstrap.min.js'%}"></script>
+        <script src="{%static 'app/vendor/js/angular/angular.min.js'%}"></script>
+        <script src="{%static 'app/vendor/js/angular/angular.resource.js'%}"></script>
+        <script src="{%static 'app/vendor/js/angular/angular.route.js'%}"></script>
+        <script src="{%static 'app/vendor/js/angular/angular-animate.min.js'%}"></script>
+        <script src="{%static 'app/local/js/config.js'%}"></script>
+        <script src="{%static 'app/local/js/compare.js'%}"></script>
+        <link type="text/css" rel="stylesheet" href="{%static 'app/vendor/css/bootstrap.css'%}" />
+        <link type="text/css" rel="stylesheet" href="{%static 'app/vendor/css/jquery-ui.min.css'%}" />
+        <link type="text/css" rel="stylesheet" href="{%static 'app/local/css/index.css'%}" />
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Search Tool</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="active"><a href="/tool/home">Search</a></li>
+                <!-- <li><a href="/tool/compare" class="disabled">Compare</a></li> -->
+            </ul>
+        </div>
+        </nav>
+        <div class="">
+            <div ng-view></div>
+        </div>
+
+
+        {%include 'app/search/_search.html'%}
+        {%include 'app/compare/_compare.html'%}
+    </body>
+</html>

@@ -1,0 +1,219 @@
+{%verbatim%}
+<script id="search.htm" type="text/ng-template" ng-controller="search">
+    <div>
+        <div class="col-lg-12" style="padding-bottom: 1em">
+         <div class="col-lg-6">
+          <input type="text" name="query" class="form-control col-lg-4" placeholder="Enter your query" ng-model="query" autofocus />
+         </div>
+        <!--  <div class="col-lg-3">
+          <select class="form-control" ng-model="query">
+           <option ng-repeat="h in history">{{h}}</option>
+          </select>
+         </div> -->
+         <div class="col-lg-1">
+          <input type="number" min="1" class="form-control" value="10" ng-model="queryQuantity">
+         </div>
+         <div class="col-lg-1">
+          <label class="control-label"><input type="checkbox" ng-model="queryForce" placeholder="Force"/>&nbsp;&nbsp;&nbsp;Force</label>
+         </div>
+         <!-- <div class="col-lg-2">
+          <select ng-model="queryEngine" class="form-control hidden">
+           <option>Google</option>
+           <option>Wikipedia</option>
+          </select>
+         </div> -->
+         <div class="col-lg-1">
+          <button id="submitQuery" class="btn btn-default btn-block" ng-click="search()">Search</button>
+         </div>
+         <div class="col-lg-2">
+          <button id="toggleAnalysis" class="btn btn-default btn-block" ng-click="toggleAnalysis()">Show Similar Results</button>
+         </div>
+        </div>
+        <hr>
+         <div id="googleOnlyWideResults" class="col-lg-12" style="height:100%; overflow-y: scroll; border-left: black 2px solid" ng-if="results.length>0&&!visibleAnalysis">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <div class="col-lg-12" ng-if="results.length > 0">
+                        <span>{{all_results}} results</span>
+                    </div>
+                    <div class="col-lg-12" ng-repeat="(index,r) in results" ng-if="r.type=='result'||r.type=='duplicate'">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <span>{{r.index}}</span>
+                                    <a href="{{r.url}}" target="_blank">
+                                        <b ng-if="r.title">{{r.title}}</b>
+                                        <b ng-if="!r.title">{{r.url}}</b>
+                                    </a>
+                                <button ng-if="r.text.trim().length>0" class="btn btn-default btn-xs" data-target="#magicModal" data-toggle="modal" ng-click="focusResult(r)">  --view-- </button>
+                                 <br>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6" style="height:100%; overflow-y: scroll;" ng-if="results.length>0&&visibleAnalysis">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <div class="col-lg-12" ng-if="results.length > 0">
+                        <span>{{total_results}} results</span>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <!-- <div class="panel-body"> -->
+                                <div class="panel-body" ng-repeat="r in results"  ng-if="results.length > 0 && r.type == 'meta'">
+                                    <button class="btn btn-sm" ng-repeat="k in r.keywords" ng-hide="parseInt(k)||k.length<3" class="mark" ng-click="filterByKeyword($event, k)" ng-class="{'btn-success': filterKeywords.indexOf(k)>-1}">{{k}}</button> &nbsp; &nbsp;
+                                </div>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                    <div class="col-lg-12 hidden" ng-repeat="(index, c) in results|orderBy:'index'" ng-if="c.type=='cluster'">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" ng-if="c.contains_text">
+                                <button class="btn btn-sm" ng-repeat="k in c.keywords" class="mark" ng-click="filterByKeyword($event, k)" ng-class="{'btn-success': filterKeywords.indexOf(k)>-1}" ng-hide="parseInt(k)||k.length<3">{{k}}</button> &nbsp; &nbsp;
+                            </div>
+                            <div class="panel-body">
+                                <div class="panel panel-default">
+                                    <div class="" ng-repeat="(index,r) in c.data|orderBy:'index'">
+                                        <div class="panel-body" ng-repeat="(i,res) in results|orderBy:'index'" ng-if="(res.type=='result'&&res.url==r.url&&!res.hide)" ng-hide="filterKeywords.length>0&&res.text==''" >
+                                            <span>{{res.index}}</span>
+                                            <a href="{{res.url}}" target="_blank">
+                                                <span class="">{{res.title}}</span>
+                                                <span class="" ng-if="!res.title">No Title: {{res.url | limitTo:100}}</span>
+                                            </a>
+                                            <button class="btn btn-default btn-xs" ng-if="res.text.trim().length>0" data-target="#magicModal" data-toggle="modal" ng-click="focusResult(res)">  --view-- </button>
+
+                                            <!--<span class="mark">{{r.keywords.split(",").splice(10).join(" - ")}}</span> <br>-->
+                                            <!-- <p>
+                                                {{r.text}}
+                                            </p> -->
+                                        </div>
+                                    </div> <hr>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" ng-repeat="(index,r) in results" ng-hide="(r.hide)||(filterKeywords.length>0&&r.text.length==0)" ng-if="r.type=='result'">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <span>{{r.index}}</span>
+                                    <a href="{{r.url}}" target="_blank">
+                                        <b ng-if="r.title">{{r.title}}</b>
+                                        <b ng-if="!r.title">{{r.url}}</b>
+                                    </a>
+                                <button ng-if="r.text.trim().length>0" class="btn btn-default btn-xs" data-target="#magicModal" data-toggle="modal" ng-click="focusResult(r)">  --view-- </button>
+                                 <br>
+                                <table class="table table-bordered table-hover">
+                                    <tr ng-repeat="(sim_index, sim_r) in results" ng-if="sim_r.type=='similar'&&sim_r.source==r.url" ng-class="{'highlight':sim_r.score>=0.9}">
+                                        <td>
+                                            <span>
+                                                <!-- {{sim_r.score*100 | limitTo:2}}% -->
+                                                {{sim_r.score | limitTo:4}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a ng-repeat="(key, res) in results" ng-if="(res.url==sim_r.dest)" href="{{res.url}}" target="_blank">{{res.index}} -
+                                                <span ng-if="res.title">{{res.title}}</span>
+                                                <span ng-if="!res.title">{{res.url | limitTo:20}}</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6" style="height:100%; overflow-y: scroll; border-left: black 2px solid" ng-if="results.length>0&&visibleAnalysis">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <div class="col-lg-12" ng-if="results.length > 0">
+                        <span>{{all_results}} results</span>
+                    </div>
+                    <div class="col-lg-12" ng-repeat="(index,r) in results" ng-if="r.type=='result'||r.type=='duplicate'">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <span>{{r.index}}</span>
+                                    <a href="{{r.url}}" target="_blank">
+                                        <b ng-if="r.title">{{r.title}}</b>
+                                        <b ng-if="!r.title">{{r.url}}</b>
+                                    </a>
+                                <button ng-if="r.text.trim().length>0" class="btn btn-default btn-xs" data-target="#magicModal" data-toggle="modal" ng-click="focusResult(r)">  --view-- </button>
+                                 <br>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="magicModal">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">{{focusedResult.title}}</h4>
+          </div>
+          <div class="modal-body">
+            <p ng-repeat="s in focusedResult.plaintext track by $index">
+                <span ng-repeat="w in s.split(' ') track by $index">
+                    {{w}}
+                </span>
+            </p>
+
+            <hr>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Similar</div>
+                    <div class="panel-body">
+                        <table class="table table-bordered table-hover">
+                            <tr class="" ng-repeat="(index, r) in results" ng-if="r.type=='similar'&&r.source==focusedResult.url&&r.score<0.9">
+                                <td>
+                                    <span>
+                                        {{r.score | limitTo:5}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a ng-repeat="(key, res) in results" ng-if="res.url==r.dest" href="{{res.url}}" target="_blank">
+                                        {{res.index}} - {{res.title}}
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                <div>
+                </div>
+            </div>
+            <div class="alert alert-warning">
+                <h5>Duplicate</h5>
+                <table class="table table-bordered table-hover">
+                    <tr class="highlight" ng-repeat="(index, r) in results" ng-if="r.type=='similar'&&r.source==focusedResult.url&&r.score>=0.9">
+                        <td>
+                            <span>
+                                {{r.score | limitTo:5}}
+                            </span>
+                        </td>
+                        <td>
+                            <a ng-repeat="(key, res) in results" ng-if="res.url==r.dest" href="{{res.url}}" target="_blank">
+                                {{res.index}} - {{res.title}}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+</script>
+{%endverbatim%}
