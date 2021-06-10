@@ -11,7 +11,7 @@ beautifulsoup4==4.3.2
 #cssselect==0.9.1
 dj-database-url==0.4.1
 dj-static==0.0.6
-Django==1.10.1
+Django==2.2.24
 djangorestframework==3.5.4
 #docker-py==1.7.2
 #dockerpty==0.4.1
